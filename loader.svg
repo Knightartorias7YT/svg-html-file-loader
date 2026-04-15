@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+
+  <style>
+    .bg { fill: #111827; }
+    .box { fill: #1f2937; stroke: #3b82f6; stroke-width: 2; }
+    .title { fill: white; font-size: 22px; text-anchor: middle; font-family: Arial; }
+    .text { fill: #9ca3af; font-size: 14px; text-anchor: middle; font-family: Arial; }
+    .highlight { fill: #3b82f6; opacity: 0.2; }
+  </style>
+
+  <!-- Background -->
+  <rect class="bg" width="100%" height="100%"/>
+
+  <!-- Drop zone -->
+  <rect id="dropZone" class="box" x="100" y="100" width="400" height="200" rx="12"/>
+
+  <text class="title" x="300" y="160">Drop HTML File Here</text>
+  <text class="text" x="300" y="190">It will open in a new tab (about:blank)</text>
+
+  <text class="text" x="300" y="240">Only .html files supported</text>
+
+  <script><![CDATA[
+    const dropZone = document.getElementById("dropZone");
+
+    // Highlight effect
+    function setHighlight(on) {
+      dropZone.style.fill = on ? "#3b82f6" : "#1f2937";
+      dropZone.style.opacity = on ? "0.3" : "1";
+    }
+
+    // Prevent default drag behaviors
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(event => {
+      document.addEventListener(event, e => e.preventDefault(), false);
+    });
+
+    document.addEventListener("dragover", () => setHighlight(true));
+    document.addEventListener("dragleave", () => setHighlight(false));
+
+    document.addEventListener("drop", (e) => {
+      setHighlight(false);
+
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+
+      // Only allow HTML files
+      if (!file.name.endsWith(".html")) {
+        alert("Please drop an .html file");
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        const htmlContent = event.target.result;
+
+        // Open new about:blank tab
+        const win = window.open("about:blank");
+
+        if (!win) {
+          alert("Popup blocked! Allow popups and try again.");
+          return;
+        }
+
+        win.document.open();
+        win.document.write(htmlContent);
+        win.document.close();
+      };
+
+      reader.readAsText(file);
+    });
+  ]]></script>
+
+</svg>
